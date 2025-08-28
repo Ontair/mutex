@@ -21,12 +21,11 @@ func NewMutex() *Mutex {
 }
 
 func (m *Mutex) Lock() {
-	defer m.Unlock()
 	retries := 0
 	for !m.state.CompareAndSwap(unlocked, locked) {
 		retries++
 		if retries > fastCheckNumber {
-			runtime.Gosched() //  даём попытку другим горутинам
+			runtime.Gosched() // даём попытку другим горутинам
 			retries = 0
 		}
 	}
