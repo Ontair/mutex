@@ -2,13 +2,10 @@ package mutex
 
 import (
 	"runtime"
-	// "sync"
 	"sync/atomic"
 )
 
 type RWMutex struct {
-
-	// m          Mutex
 	readCount  atomic.Int64
 	writeState atomic.Bool
 }
@@ -18,26 +15,28 @@ func NewRWMutex() *RWMutex {
 }
 
 func (m *RWMutex) RLock() {
+	// много чтения разрешено пока нет write
 	for {
-		// много чтения разрешено пока нет write
 		if m.writeState.Load() {
 			runtime.Gosched()
 			continue
 		}
 
 		m.readCount.Add(1)
-		// Вторая проверка (двойная проверка)
+		// Вторая проверка, на тот случай, если после первой проверки и до добавления читателя не встроился писатель
 		if !m.writeState.Load() {
-			return // Успех!
+			return // Не встроился
 		}
 
-		// Если писатель появился между первой и второй проверкой
-		m.readCount.Add(-1) // Откатываемся
+		// пистель встролся - откатываемся
+		m.readCount.Add(-1)
 	}
 }
 
 func (m *RWMutex) RUnlock() {
-	m.readCount.Add(-1)
+    if m.readCount.Add(-1) < 0 {
+        panic("RUnlock of unlocked RWMutex")
+    }
 }
 
 func (m *RWMutex) Lock() {
@@ -46,7 +45,7 @@ func (m *RWMutex) Lock() {
 	for !m.writeState.CompareAndSwap(unlocked, locked) {
 		retries++
 		if retries > fastCheckNumber {
-			runtime.Gosched() // даём попытку другим горутинам
+			runtime.Gosched() // даём попытку другим горутинам поработать
 			retries = 0
 		}
 	}

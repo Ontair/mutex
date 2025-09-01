@@ -33,5 +33,7 @@ func (m *Mutex) Lock() {
 }
 
 func (m *Mutex) Unlock() {
-	m.state.Store(unlocked)
+    if !m.state.CompareAndSwap(locked, unlocked) {
+        panic("unlock of unlocked mutex")
+    }
 }
