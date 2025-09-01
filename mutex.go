@@ -10,7 +10,7 @@ const (
 	unlocked = false
 )
 
-var fastCheckNumber = 3 //быстрая попытка захватить память
+var fastCheckNumber = 3 // быстрая попытка захватить память
 
 type Mutex struct {
 	state atomic.Bool
@@ -29,11 +29,10 @@ func (m *Mutex) Lock() {
 			retries = 0
 		}
 	}
-
 }
 
 func (m *Mutex) Unlock() {
-    if !m.state.CompareAndSwap(locked, unlocked) {
-        panic("unlock of unlocked mutex")
-    }
+	if !m.state.CompareAndSwap(locked, unlocked) {
+		panic("unlock of unlocked mutex")
+	}
 }

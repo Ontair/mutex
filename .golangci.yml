@@ -1,0 +1,51 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - cyclop
+    - depguard
+    - errcheck
+    - errchkjson
+    - exhaustruct
+    - funlen
+    - gochecknoglobals
+    - gochecknoinits
+    - gocognit
+    - godox
+    - musttag
+    - nestif
+    - nlreturn
+    - nolintlint
+    - nonamedreturns
+    - perfsprint
+    - prealloc
+    - revive
+    - tagliatelle
+    - testpackage
+    - thelper
+    - varnamelen
+    - wrapcheck
+    - wsl
+  settings:
+    funlen:
+      lines: 100
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

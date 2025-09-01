@@ -8,6 +8,8 @@ import (
 )
 
 func TestMutex_LockUnlock(t *testing.T) {
+	t.Parallel()
+
 	m := NewMutex()
 
 	// Базовый тест lock/unlock
@@ -23,13 +25,15 @@ func TestMutex_LockUnlock(t *testing.T) {
 }
 
 func TestMutex_ConcurrentAccess(t *testing.T) {
+	t.Parallel()
+
 	m := NewMutex()
 	counter := 0
 	var wg sync.WaitGroup
 	iterations := 1000
 
 	// Запускаем много горутин для конкурентного доступа
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -47,6 +51,8 @@ func TestMutex_ConcurrentAccess(t *testing.T) {
 }
 
 func TestMutex_TryLockSimulation(t *testing.T) {
+	t.Parallel()
+
 	m := NewMutex()
 
 	// Первый lock должен успешно захватиться
@@ -80,12 +86,14 @@ func TestMutex_TryLockSimulation(t *testing.T) {
 }
 
 func TestMutex_StressTest(t *testing.T) {
+	t.Parallel()
+
 	m := NewMutex()
 	var wg sync.WaitGroup
 	counter := 0
 	operations := 100
 	task := 10000
-	
+
 	addTask := func() {
 		defer wg.Done()
 		for range operations {
@@ -95,7 +103,7 @@ func TestMutex_StressTest(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < task; i++ {
+	for range task {
 		wg.Add(1)
 		go addTask()
 	}
@@ -108,6 +116,8 @@ func TestMutex_StressTest(t *testing.T) {
 }
 
 func TestMutex_UnlockPanic(t *testing.T) {
+	t.Parallel()
+
 	m := NewMutex()
 	func() {
 		defer func() {

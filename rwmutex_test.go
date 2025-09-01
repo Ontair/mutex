@@ -8,6 +8,8 @@ import (
 )
 
 func TestRWMutex_BasicReadWrite(t *testing.T) {
+	t.Parallel()
+
 	m := NewRWMutex()
 
 	// Чтение должно работать когда нет писателей
@@ -26,12 +28,14 @@ func TestRWMutex_BasicReadWrite(t *testing.T) {
 }
 
 func TestRWMutex_MultipleReaders(t *testing.T) {
+	t.Parallel()
+
 	m := NewRWMutex()
 	var wg sync.WaitGroup
 	readers := 10
 
 	// Запускаем несколько читателей одновременно
-	for i := 0; i < readers; i++ {
+	for i := range readers {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
@@ -53,6 +57,8 @@ func TestRWMutex_MultipleReaders(t *testing.T) {
 }
 
 func TestRWMutex_WriterBlocksReaders(t *testing.T) {
+	t.Parallel()
+
 	m := NewRWMutex()
 
 	// Писатель захватывает мьютекс
@@ -87,6 +93,8 @@ func TestRWMutex_WriterBlocksReaders(t *testing.T) {
 }
 
 func TestRWMutex_ReadersBlockWriter(t *testing.T) {
+	t.Parallel()
+
 	m := NewRWMutex()
 
 	// Читатель захватывает мьютекс
@@ -121,32 +129,34 @@ func TestRWMutex_ReadersBlockWriter(t *testing.T) {
 }
 
 func TestRWMutex_StressTest(t *testing.T) {
+	t.Parallel()
+
 	m := NewRWMutex()
 	data := make(map[int]int)
 	var readCount, writeCount atomic.Int64
 	var wg sync.WaitGroup
 
 	// Запускаем читателей
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		wg.Add(1)
-		go func(id int) {
+		go func() {
 			defer wg.Done()
-			for j := 0; j < 100; j++ {
+			for range 100 {
 				m.RLock()
 				_ = len(data) // Читаем данные
 				readCount.Add(1)
 				m.RUnlock()
 				time.Sleep(time.Microsecond)
 			}
-		}(i)
+		}()
 	}
 
 	// Запускаем писателей
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		wg.Add(1)
 		go func(id int) {
 			defer wg.Done()
-			for j := 0; j < 20; j++ {
+			for j := range 20 {
 				m.Lock()
 				data[id*100+j] = j
 				writeCount.Add(1)
@@ -167,6 +177,8 @@ func TestRWMutex_StressTest(t *testing.T) {
 }
 
 func TestRMMutex_RUnlockPanic(t *testing.T) {
+	t.Parallel()
+
 	rm := NewRWMutex()
 
 	go func() {

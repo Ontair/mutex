@@ -34,9 +34,9 @@ func (m *RWMutex) RLock() {
 }
 
 func (m *RWMutex) RUnlock() {
-    if m.readCount.Add(-1) < 0 {
-        panic("RUnlock of unlocked RWMutex")
-    }
+	if m.readCount.Add(-1) < 0 {
+		panic("RUnlock of unlocked RWMutex")
+	}
 }
 
 func (m *RWMutex) Lock() {
@@ -53,7 +53,6 @@ func (m *RWMutex) Lock() {
 	for m.readCount.Load() > 0 {
 		runtime.Gosched()
 	}
-
 }
 
 func (m *RWMutex) Unlock() {
